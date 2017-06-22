@@ -3,6 +3,7 @@ require "logstash/inputs/base"
 require "logstash/namespace"
 require "stud/interval"
 require "socket" # for Socket.gethostname
+require '../../../lib/mongo/mongo'
 
 # Generate a repeating message.
 #
@@ -11,28 +12,31 @@ require "socket" # for Socket.gethostname
 class LogStash::Inputs::Mongoprofile < LogStash::Inputs::Base
   config_name "mongoprofile"
 
-  # If undefined, Logstash will complain, even if codec is unused.
   default :codec, "plain"
 
-  # The message string to use in the event.
-  config :message, :validate => :string, :default => "Hello World!"
-
-  # Set how frequently messages should be sent.
-  #
-  # The default, `1`, means send a message every second.
-  config :interval, :validate => :number, :default => 1
+  config :message, :validate => :string, :default => "Default message"
+  config :interval, :validate => :number, :default => 10
+  config :url, :validate => :string, :required => true
+  config :path, :validate => :string, :required => true
+  config :client_host, :validate => :string, :default => '127.0.0.1'
 
   public
   def register
     @host = Socket.gethostname
+    @controller = Controller.new(@host, @url, 'system.profile', 1000, @path, @client_host)
   end # def register
 
   def run(queue)
     # we can abort the loop if stop? becomes true
     while !stop?
-      event = LogStash::Event.new("message" => @message, "host" => @host)
-      decorate(event)
-      queue << event
+
+      @controller.get_next_events.each do |event|
+        @logger.info("Send event #{event}")
+
+        decorate(event)
+        queue << event
+      end
+
       # because the sleep interval can be big, when shutdown happens
       # we want to be able to abort the sleep
       # Stud.stoppable_sleep will frequently evaluate the given block

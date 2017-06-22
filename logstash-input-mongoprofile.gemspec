@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'logstash-input-mongoprofile'
-  s.version       = '0.1.0'
+  s.version       = '0.1.1'
   s.licenses      = ['Apache License (2.0)']
   s.summary       = 'MongoDB system.profile input plugin'
   s.description   = 'MongoDB system.profile input plugin'
@@ -21,5 +21,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "logstash-core-plugin-api", "~> 2.0"
   s.add_runtime_dependency 'logstash-codec-plain'
   s.add_runtime_dependency 'stud', '>= 0.0.22'
+  s.add_runtime_dependency 'mongo', '>= 2.0.0'
   s.add_development_dependency 'logstash-devutils', '>= 0.0.16'
 end
