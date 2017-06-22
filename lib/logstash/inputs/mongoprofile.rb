@@ -157,8 +157,10 @@ class Controller
     last_date_value = @last_value_store.get_last_value
 
     if last_date_value == ''
+      @logger.info('Getting documents from mongo first time')
       documents = @mongo_accessor.get_documents(@limit)
     else
+      @logger.info("Getting documents from mongo start at #{last_date_value}")
       documents = @mongo_accessor.get_documents_by_ts(last_date_value, @limit)
     end
 
