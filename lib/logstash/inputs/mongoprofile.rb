@@ -35,7 +35,7 @@ class LogStash::Inputs::Mongoprofile < LogStash::Inputs::Base
       begin
 
         @controller.get_next_events.each do |event|
-          @logger.info("Send event #{event}")
+          @logger.debug("Send event #{event}")
 
           decorate(event)
           queue << event
@@ -126,7 +126,7 @@ class DocumentParser
     event = LogStash::Event.new('host' => @host)
 
     document.each do |key, value|
-      @logger.info("Try set event field key: #{key} value: #{value}")
+      @logger.debug("Try set event field key: #{key} value: #{value}")
       event.set(key, value)
     end
 
