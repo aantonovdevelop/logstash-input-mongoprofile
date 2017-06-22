@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'logstash-input-mongoprofile'
-  s.version       = '0.1.14'
+  s.version       = '0.1.15'
   s.licenses      = ['Apache License (2.0)']
   s.summary       = 'MongoDB system.profile input plugin'
   s.description   = 'MongoDB system.profile input plugin'

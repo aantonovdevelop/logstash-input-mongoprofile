@@ -20,11 +20,12 @@ class LogStash::Inputs::Mongoprofile < LogStash::Inputs::Base
   config :url, :validate => :string, :required => true
   config :path, :validate => :string, :required => true
   config :client_host, :validate => :string, :default => '127.0.0.1'
+  config :generate_id, :validate => :boolean, :default => false
 
   public
   def register
     @host = Socket.gethostname
-    @controller = Controller.new(@host, @url, 'system.profile', 1000, @path, @client_host, @logger)
+    @controller = Controller.new(@host, @url, 'system.profile', 1000, @path, @client_host, @logger, @generate_id)
   end
 
   # def register
@@ -83,7 +84,8 @@ class MongoAccessor
 end
 
 class ProfileCollection
-  def initialize(documents, parser)
+  def initialize(documents, parser, generate_id)
+    @generate_id = generate_id
     @documents = []
 
     documents.each do |document|
@@ -95,7 +97,10 @@ class ProfileCollection
 
   def each
     @documents.each do |document|
-      document['_id'] = generate_id.to_s
+      if @generate_id
+        document['_id'] = generate_id.to_s
+      end
+
       yield @parser.parse(document)
     end
   end
@@ -154,10 +159,11 @@ class LastValueStore
 end
 
 class Controller
-  def initialize(event, url, collection, limit, path, client_host, logger)
+  def initialize(event, url, collection, limit, path, client_host, logger, generate_id)
     @mongo_accessor = MongoAccessor.new(url, collection, client_host)
     @last_value_store = LastValueStore.new(path, collection)
     @document_parser = DocumentParser.new(event, logger)
+    @generate_id = generate_id
     @limit = limit
     @logger = logger
   end
@@ -173,7 +179,7 @@ class Controller
       documents = @mongo_accessor.get_documents_by_ts(last_date_value, @limit)
     end
 
-    profile_collection = ProfileCollection.new(documents, @document_parser)
+    profile_collection = ProfileCollection.new(documents, @document_parser, @generate_id)
 
     if  profile_collection.get_last_document_date != nil
       @last_value_store.save_last_value(profile_collection.get_last_document_date)
