@@ -73,17 +73,22 @@ class MongoAccessor
   end
 
   def get_documents_by_ts(date, limit)
-    @collection.find({:ts => {:$gt => date}, :client => {:$ne => @client_host}}).limit(limit)
+    @collection.find({:ts => {:$gt => date}, :client => {:$ne => @client_host}}).limit(limit).sort(:ts => -1)
   end
 
   def get_documents(limit)
-    @collection.find({:client => {:$ne => @client_host}}).limit(limit)
+    @collection.find({:client => {:$ne => @client_host}}).limit(limit).sort(:ts => -1)
   end
 end
 
 class ProfileCollection
   def initialize(documents, parser)
-    @documents = documents
+    @documents = []
+
+    documents.each do |document|
+      @documents.push(document)
+    end
+
     @parser = parser
   end
 
