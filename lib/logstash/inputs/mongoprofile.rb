@@ -24,26 +24,35 @@ class LogStash::Inputs::Mongoprofile < LogStash::Inputs::Base
   def register
     @host = Socket.gethostname
     @controller = Controller.new(@host, @url, 'system.profile', 1000, @path, @client_host)
-  end # def register
+  end
+
+  # def register
 
   def run(queue)
     # we can abort the loop if stop? becomes true
     while !stop?
+      begin
 
-      @controller.get_next_events.each do |event|
-        @logger.info("Send event #{event}")
+        @controller.get_next_events.each do |event|
+          @logger.info("Send event #{event}")
 
-        decorate(event)
-        queue << event
+          decorate(event)
+          queue << event
+        end
+
+        # because the sleep interval can be big, when shutdown happens
+        # we want to be able to abort the sleep
+        # Stud.stoppable_sleep will frequently evaluate the given block
+        # and abort the sleep(@interval) if the return value is true
+        Stud.stoppable_sleep(@interval) {stop?}
+      rescue => e
+        @logger.warn('MongoProfile input threw an exception, restarting', :exception => e)
+        @logger.warn(e.backtrace.inspect)
       end
-
-      # because the sleep interval can be big, when shutdown happens
-      # we want to be able to abort the sleep
-      # Stud.stoppable_sleep will frequently evaluate the given block
-      # and abort the sleep(@interval) if the return value is true
-      Stud.stoppable_sleep(@interval) { stop? }
     end # loop
-  end # def run
+  end
+
+  # def run
 
   def stop
     # nothing to do in this case so it is not necessary to define stop
