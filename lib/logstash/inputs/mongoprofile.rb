@@ -4,6 +4,7 @@ require "logstash/namespace"
 require "stud/interval"
 require "socket" # for Socket.gethostname
 require "mongo"
+require "date"
 
 # Generate a repeating message.
 #
@@ -73,7 +74,7 @@ class MongoAccessor
   end
 
   def get_documents_by_ts(date, limit)
-    @collection.find({:ts => {:$gt => date}, :client => {:$ne => @client_host}}).limit(limit).sort(:ts => -1)
+    @collection.find({:ts => {:$gt => DateTime.parse(date)}, :client => {:$ne => @client_host}}).limit(limit).sort(:ts => -1)
   end
 
   def get_documents(limit)
