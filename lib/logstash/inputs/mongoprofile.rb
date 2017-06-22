@@ -116,14 +116,17 @@ class ProfileCollection
 end
 
 class DocumentParser
-  def initialize(host)
+  def initialize(host, logger)
     @host = host
+    @logger = logger
   end
 
   def parse(document)
+    @logger.info('Start documents parsing')
     event = LogStash::Event.new('host' => @host)
 
     document.each do |key, value|
+      @logger.info("Try set event field key: #{key} value: #{value}")
       event.set(key, value)
     end
 
