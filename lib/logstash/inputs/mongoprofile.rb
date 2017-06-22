@@ -23,7 +23,7 @@ class LogStash::Inputs::Mongoprofile < LogStash::Inputs::Base
   public
   def register
     @host = Socket.gethostname
-    @controller = Controller.new(@host, @url, 'system.profile', 1000, @path, @client_host)
+    @controller = Controller.new(@host, @url, 'system.profile', 1000, @path, @client_host, @logger)
   end
 
   # def register
@@ -146,11 +146,12 @@ class LastValueStore
 end
 
 class Controller
-  def initialize(event, url, collection, limit, path, client_host)
+  def initialize(event, url, collection, limit, path, client_host, logger)
     @mongo_accessor = MongoAccessor.new(url, collection, client_host)
     @last_value_store = LastValueStore.new(path, collection)
     @document_parser = DocumentParser.new(event)
     @limit = limit
+    @logger = logger
   end
 
   def get_next_events
