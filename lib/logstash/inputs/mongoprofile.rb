@@ -157,7 +157,7 @@ class Controller
   def initialize(event, url, collection, limit, path, client_host, logger)
     @mongo_accessor = MongoAccessor.new(url, collection, client_host)
     @last_value_store = LastValueStore.new(path, collection)
-    @document_parser = DocumentParser.new(event)
+    @document_parser = DocumentParser.new(event, @logger)
     @limit = limit
     @logger = logger
   end
