@@ -95,7 +95,7 @@ class ProfileCollection
 
   def each
     @documents.each do |document|
-      document['_id'] = generate_id
+      document['_id'] = generate_id.to_s
       yield @parser.parse(document)
     end
   end
