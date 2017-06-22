@@ -100,7 +100,7 @@ class ProfileCollection
   end
 
   def get_last_document_date
-    if @documents != nil
+    if @documents and @documents[-1] != nil
       @documents[-1]['ts']
     else
       nil
