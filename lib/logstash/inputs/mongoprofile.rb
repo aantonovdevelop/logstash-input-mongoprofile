@@ -75,11 +75,11 @@ class MongoAccessor
   end
 
   def get_documents_by_ts(date, limit)
-    @collection.find({:ts => {:$gt => DateTime.parse(date)}, :client => {:$ne => @client_host}}).limit(limit).sort(:ts => -1)
+    @collection.find({:ts => {:$gt => DateTime.parse(date) + 0.00002}, :client => {:$ne => @client_host}}).limit(limit).sort(:ts => 1)
   end
 
   def get_documents(limit)
-    @collection.find({:client => {:$ne => @client_host}}).limit(limit).sort(:ts => -1)
+    @collection.find({:client => {:$ne => @client_host}}).limit(limit).sort(:ts => 1)
   end
 end
 
@@ -103,10 +103,12 @@ class ProfileCollection
 
       yield @parser.parse(document)
     end
+
+    @documents = []
   end
 
   def get_last_document_date
-    if @documents and @documents[-1] != nil
+    if @documents != nil and @documents[-1] != nil
       @documents[-1]['ts']
     else
       nil
@@ -183,9 +185,9 @@ class Controller
 
     if  profile_collection.get_last_document_date != nil
       @last_value_store.save_last_value(profile_collection.get_last_document_date)
-    end
-      @logger.info('Nothing to get...')
     else
+      @logger.info('Nothing to get...')
+    end
 
     profile_collection
   end
