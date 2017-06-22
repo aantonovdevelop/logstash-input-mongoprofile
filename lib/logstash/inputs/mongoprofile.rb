@@ -100,7 +100,11 @@ class ProfileCollection
   end
 
   def get_last_document_date
-    @documents[-1]['ts']
+    if @documents != nil
+      @documents[-1]['ts']
+    else
+      nil
+    end
   end
 
   private
@@ -167,7 +171,11 @@ class Controller
 
     profile_collection = ProfileCollection.new(documents, @document_parser)
 
-    @last_value_store.save_last_value(profile_collection.get_last_document_date)
+    if  profile_collection.get_last_document_date != nil
+      @last_value_store.save_last_value(profile_collection.get_last_document_date)
+    end
+      @logger.info('Nothing to get...')
+    else
 
     profile_collection
   end
